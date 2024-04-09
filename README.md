@@ -64,6 +64,8 @@ cd ~/frankapy
 conda deactivate
 bash ./bash_scripts/start_control_pc.sh -i localhost
 # /bin/python3 examples/move_robot.py
+cd ~/frankapy
+conda deactivate
 cd ../Haoran
 /bin/python3 6_franka_control.py
 ```

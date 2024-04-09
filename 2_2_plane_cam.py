@@ -102,9 +102,9 @@ if __name__ == "__main__":
     refined_corners = calc_corners(color_image)
     print("Refined coordinates:", refined_corners)
 
-    focal_length = [913.576, 912.938]
-    principal_point = [628.32, 360.564]
-    intrinsics = np.array([[focal_length[0], 0, principal_point[0]], [0, focal_length[1], principal_point[1]], [0, 0, 1]])
+    intrinsics = np.load(os.path.join(save_dir, "intrinsics.npy"), allow_pickle=True)
+    focal_length = [intrinsics[0, 0], intrinsics[1, 1]]
+    principal_point = [intrinsics[0, 2], intrinsics[1, 2]]
 
     # Convert the refined corner coordinates to 3D points again
     camera_corners_3d = image_to_3d(depth_image, refined_corners, focal_length, principal_point)

@@ -71,22 +71,6 @@ if __name__=="__main__":
 
     clutter_scene_path  = os.path.join(save_dir, 'clutter_scene')
 
-        # ## intrinsics is a matrix
-    # intrinsics_o3d = o3d.camera.PinholeCameraIntrinsic(
-    #     width=1280,
-    #     height=720,
-    #     fx=913.576,
-    #     fy=912.938,
-    #     cx=628.32,
-    #     cy=360.564,
-    # )
-
-    # extrinsic = np.eye(4)  # Identity matrix
-    # T_cam2plane = np.array([[ 0.99763501, -0.04145525, -0.05482554,  0.15870768],
-    #     [ 0.03871833, -0.32011408,  0.94658748, -0.55869447],
-    #     [-0.05679145, -0.94647157, -0.31775194,  0.41806738],
-    #     [ 0.        ,  0.        ,  0.        ,  1.        ]])
-
     T_cam2plane = np.load(f'{save_dir}/cam2plane_transformation.npy')
 
     # extrinsic_inv = np.linalg.inv(extrinsic)

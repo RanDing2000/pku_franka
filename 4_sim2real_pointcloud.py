@@ -3,7 +3,8 @@ import open3d as o3d
 import json
 import re
 from utils_scene import *
-
+from pysdf import SDF
+import torch
 
 def bound_points(point_cloud):
     # Clip the point cloud values to the range (0, 0.3)
@@ -21,15 +22,30 @@ def bound_points(point_cloud):
 
 
 def get_grid(tsdf_volume,resolution=40):
-    shape = (1, resolution, resolution, resolution)
-    tsdf_grid = np.zeros(shape, dtype=np.float32)
-    voxel_grid = tsdf_volume.extract_voxel_grid()
-    voxels = voxel_grid.get_voxels()
-    for voxel in voxels:
-        i, j, k = voxel.grid_index
-        tsdf_grid[0, i, j, k] = voxel.color[0]
-    print("tsdf_grid:", np.unique(tsdf_grid))
-    return tsdf_grid
+    # shape = (1, resolution, resolution, resolution)
+    # tsdf_grid = np.zeros(shape, dtype=np.float32)
+    vertices = np.asarray(tsdf_volume.extract_triangle_mesh().vertices)
+    triangle_mesh = np.asarray(tsdf_volume.extract_triangle_mesh().triangles)
+    
+    x, y, z = torch.meshgrid(torch.linspace(start=0, end=0.3 - 0.3 / 40, steps=40), torch.linspace(start=0, end=0.3 - 0.3 / 40, steps=40), torch.linspace(start=0, end=0.3 - 0.3 / 40, steps=40))
+    pos = torch.stack((x, y, z), dim=-1).float() # (1, 40, 40, 40, 3)
+    pos = pos.view(-1, 3)
+
+    f = SDF(vertices, triangle_mesh)
+    sdf = f(pos)
+    sdf_reshaped = sdf.reshape(40,40,40)
+    sdf_trunc = 4 * (0.3/40)
+
+    mask = (sdf_reshaped >= sdf_trunc) | (sdf_reshaped <= -sdf_trunc) 
+
+    tsdf = (sdf_reshaped / sdf_trunc + 1) / 2
+
+    tsdf[mask] = 0
+
+    ## convert to numpy
+    # tsdf = tsdf.cpu().numpy()
+
+    return tsdf
 
 
 if __name__=="__main__":
@@ -91,7 +107,7 @@ if __name__=="__main__":
     # np.save()
     np.save(f'{clutter_scene_path}/scene_pointcloud_cam.npy', point_scene_cam)
 
-    point_targ_cam = np.load(f'{save_dir}/clutter_scene/object_1.npy') 
+    point_targ_cam = np.load(f'{save_dir}/clutter_scene/object_0.npy') 
 
     # np.save(f'{clutter_scene_path}/target_pointcloud_cam.npy', point_targ_cam)
 
@@ -138,12 +154,11 @@ if __name__=="__main__":
     depth_image = pointcloud_to_depthmap(point_scene_cam, intrinsics, (1280, 720))
     save_depth_image(depth_image, f'{clutter_scene_path}/clutter_scene_depth_image.png')
 
-    tsdfvolume = o3d.pipelines.integration.UniformTSDFVolume(
-                length=0.3,
-                resolution=40,
-                sdf_trunc=1.2/40,
-                color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,
-            )
+    tsdfvolume = o3d.pipelines.integration.ScalableTSDFVolume(
+    voxel_length=0.3 / 40,  # 体素的物理大小，由体积长度除以分辨率得到
+    sdf_trunc=1.2 / 40,  # 截断距离，与之前相同
+    color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,  # 指定不使用颜色信息
+)
 
     # # tsdf
     rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(
@@ -167,7 +182,7 @@ if __name__=="__main__":
     tsdf_grid = get_grid(tsdfvolume)
     np.save(f'{clutter_scene_path}/clutter_scene_tsdf_grid.npy', tsdf_grid)
 
-    tsdf_to_ply(tsdf_grid[0], f'{clutter_scene_path}/clutter_scene_tsdf.ply')
+    tsdf_to_ply(tsdf_grid, f'{clutter_scene_path}/clutter_scene_tsdf.ply')
 
 
     # ---------------------------------------- #
@@ -178,12 +193,11 @@ if __name__=="__main__":
     
     save_depth_image(depth_image, f'{clutter_scene_path}/single_scene_depth_image.png')
 
-    tsdfvolume = o3d.pipelines.integration.UniformTSDFVolume(
-                length=0.3,
-                resolution=40,
-                sdf_trunc=1.2/40,
-                color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,
-            )
+    tsdfvolume = o3d.pipelines.integration.ScalableTSDFVolume(
+    voxel_length=0.3 / 40,  # 体素的物理大小，由体积长度除以分辨率得到
+    sdf_trunc=1.2 / 40,  # 截断距离，与之前相同
+    color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,  # 指定不使用颜色信息
+)
 
     # # tsdf
     rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(
@@ -207,6 +221,6 @@ if __name__=="__main__":
     tsdf_grid = get_grid(tsdfvolume)
     np.save(f'{clutter_scene_path}/targ_tsdf_grid.npy', tsdf_grid)
 
-    tsdf_to_ply(tsdf_grid[0], f'{clutter_scene_path}/targ_tsdf.ply')
+    tsdf_to_ply(tsdf_grid, f'{clutter_scene_path}/targ_tsdf.ply')
     
     print("end")
