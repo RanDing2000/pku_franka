@@ -1,3 +1,26 @@
+import numpy as np
+from autolab_core import RigidTransform
+import sys
+sys.path.append('/home/hyperpanda/frankapy/')
+from frankapy import FrankaArm
+import os
+import json
+import argparse
+from pyquaternion import Quaternion
+# from utils_scene import *
+
+fa = FrankaArm()
+
+## A is a point, B is a point cloud 
+## find a point C in the B that has minimum distance with A
+def find_closest_point(A, B):
+    # Calculate the squared Euclidean distances
+    distances_squared = np.sum((B - A)**2, axis=1)
+    # Find the index of the minimum distance
+    min_index = np.argmin(distances_squared)
+    # Return the closest point
+    return B[min_index]
+
 ## TODO: Why do we need to check the axis?
 def inverse_extrinsics(E):
     """
@@ -189,7 +212,7 @@ def pick_motion(target_quat,world_point):
   pick along the z axis
   '''
   #go to the up direction of contact point
-  # fa.open_gripper()
+  fa.open_gripper()
   T_ee_world = fa.get_pose()
   gripper_axis = check_axis(quaternion_to_rotation_matrix(T_ee_world.quaternion))
 #   random_position = RigidTransform(rotation=target_quat, translation=T_ee_world.translation,
@@ -217,7 +240,27 @@ def pick_motion(target_quat,world_point):
     fa.goto_pose(T_ee_world)
   # exit()
   # fa.open_gripper()
+
+def pick_motion2(target_quat,world_point):
+  '''
+  pick along the z axis
+  '''
+  #go to the up direction of contact point
+  fa.open_gripper()
+  T_ee_world = fa.get_pose()
   
+  print("T_ee_world: ", T_ee_world)
+  gripper_axis = check_axis(quaternion_to_rotation_matrix(T_ee_world.quaternion))
+  print('gripper_axis:', gripper_axis)
+  if gripper_axis ==2: #negative z-axis: downward
+    random_position = RigidTransform(rotation=target_quat, translation=np.array(world_point[:3]),
+        from_frame='franka_tool', to_frame='world')
+
+    fa.goto_pose(random_position)
+    T_ee_world = fa.get_pose()
+    print('Translation: {} | Rotation: {}'.format(T_ee_world.translation, T_ee_world.quaternion))
+    fa.close_gripper()
+
 def push_motion(target_quat,world_point,NUM_CONTROL=4,MOVE_DELTA=0.03):
     print('-----------------establish initial contact')
     fa.close_gripper()

@@ -33,6 +33,16 @@ def display_image_for_selection(image):
 
     return coords
 
+def display_image_with_points(image, points, title="Image with Marked Points"):
+    """ Display the image with points marked """
+    image_marked = cv2.cvtColor(image.copy(), cv2.COLOR_BGR2RGB)
+    fig, ax = plt.subplots()
+    ax.imshow(image_marked)
+    for x, y in points:
+        ax.plot(x, y, 'ro')  # Red 'o' for each point
+    ax.set_title(title)
+    plt.show()
+
 def refine_corners(image, coords, radius=5):
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     gray = np.float32(gray)
@@ -57,11 +67,17 @@ def refine_corners(image, coords, radius=5):
 
     return refined_coords
 
+# def calc_corners(color_image):
+#     # Display image for manual selection
+#     initial_coords = display_image_for_selection(color_image)
+#     # Refine selected coordinates using Harris Corner Detection
+#     refined_corners = refine_corners(color_image, initial_coords)
+#     return refined_corners
+
 def calc_corners(color_image):
-    # Display image for manual selection
     initial_coords = display_image_for_selection(color_image)
-    # Refine selected coordinates using Harris Corner Detection
     refined_corners = refine_corners(color_image, initial_coords)
+    display_image_with_points(color_image, refined_corners, "Refined Corner Points")
     return refined_corners
 
 # Define the function to convert 2D image coordinates to 3D points correctly within this context
@@ -102,9 +118,9 @@ if __name__ == "__main__":
     refined_corners = calc_corners(color_image)
     print("Refined coordinates:", refined_corners)
 
-    focal_length = [913.576, 912.938]
-    principal_point = [628.32, 360.564]
-    intrinsics = np.array([[focal_length[0], 0, principal_point[0]], [0, focal_length[1], principal_point[1]], [0, 0, 1]])
+    intrinsics = np.load(os.path.join(save_dir, "intrinsics.npy"), allow_pickle=True)
+    focal_length = [intrinsics[0, 0], intrinsics[1, 1]]
+    principal_point = [intrinsics[0, 2], intrinsics[1, 2]]
 
     # Convert the refined corner coordinates to 3D points again
     camera_corners_3d = image_to_3d(depth_image, refined_corners, focal_length, principal_point)
@@ -187,7 +203,7 @@ if __name__ == "__main__":
     ax.imshow(color_image)
     for u, v in projected_points:
         ax.plot(u, v, 'ro')
-    plt.savefig("projected_points.png")
+    plt.savefig(os.path.join(save_dir, "projected_points.png"))
     print("=========== end testing ============")
 
     # Define the output filename using the provided scene_id

@@ -4,6 +4,7 @@
 
 ```py
 # 1.1 create scene_id and save to config.json
+conda activate base
 python /home/hyperpanda/Haoran/1_1_create_scene_name.py
 # now open config.json to make sure that the `scene_id` is updated
 # 1.2
@@ -16,7 +17,8 @@ roslaunch easy_handeye panda_realsense_eyeonbase.launch
 cd ~/frankapy
 conda deactivate
 rqt
-# operate, refer to: https://github.com/IFL-CAMP/easy_handeye/blob/master/README.md, 
+# operate, refer to: https://github.com/IFL-CAMP/easy_handeye/blob/master/README.md
+# after calibration matrix is computed, copy to `input_string` in 1_3_save_handeye_transformation.py
 # 1.3
 python '/home/hyperpanda/Haoran/1_3_save_handeye_transformation.py'
 ```
@@ -52,6 +54,7 @@ python 4_sim2real_pointcloud.py
 ```py
 cd /home/hyperpanda/GraspInClutter/realworld
 ## if GIGA
+conda activate gic
 python giga_model_prediction.py 
 ## if ours
 python ours_model_prediction.py
@@ -64,6 +67,7 @@ cd ~/frankapy
 conda deactivate
 bash ./bash_scripts/start_control_pc.sh -i localhost
 # /bin/python3 examples/move_robot.py
+cd ~/frankapy
 cd ../Haoran
 /bin/python3 6_franka_control.py
 ```

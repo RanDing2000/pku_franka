@@ -27,3 +27,4 @@ if __name__=="__main__":
     config = {"scene_id": scene_name}
     with open(os.path.join(args.save_dir_root, "config.json"), "w") as config_file:
         json.dump(config, config_file)
+    print(f"Saved scene id to {save_dir}/config.json")

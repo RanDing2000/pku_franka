@@ -39,8 +39,9 @@ if __name__=="__main__":
     color_frame = frames.get_color_frame()
     color_intrinsics = color_frame.profile.as_video_stream_profile().intrinsics
 
+    # save intrinsics matrix
     intrinsics_matrix = np.array([[color_intrinsics.fx, 0, color_intrinsics.ppx],[0, color_intrinsics.fy, color_intrinsics.ppy],[0, 0, 1]])
-    # print(intrinsics_matrix)
+    np.save(os.path.join(save_dir, "intrinsics.npy"), intrinsics_matrix)
 
     # Convert images to numpy arrays
     depth_image = np.asanyarray(depth_frame.get_data()) 
