@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import open3d as o3d
 import json
@@ -123,7 +124,7 @@ if __name__=="__main__":
     point_targ_plane = bound_points(point_targ_plane)
 
     point_targ_cam = transform_point_cloud(point_targ_plane, T_plane2cam)
-    point_targ_cam = bound_points(point_targ_cam)
+
     np.save(f'{clutter_scene_path}/target_pointcloud_cam.npy', point_targ_cam)
     
 
