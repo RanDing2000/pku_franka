@@ -7,9 +7,14 @@ from pysdf import SDF
 import torch
 
 def bound_points(point_cloud):
-    # Clip the point cloud values to the range (0, 0.3)
-    bounded_point_cloud = np.clip(point_cloud, 0, 0.3)
-    return bounded_point_cloud
+    # bound the point cloud values to the following range
+    lower = np.array([0.02, 0.02, 0.055])
+    upper = np.array([0.28, 0.28, 0.30])
+    mask = np.all((point_cloud >= lower) & (point_cloud <= upper), axis=1)
+    # Filter the points using the mask
+    filtered_point_cloud = point_cloud[mask]
+    return filtered_point_cloud
+
 
 # # A, B: a point cloud
 # def find_closest_point(A, B):
@@ -118,6 +123,7 @@ if __name__=="__main__":
     point_targ_plane = bound_points(point_targ_plane)
 
     point_targ_cam = transform_point_cloud(point_targ_plane, T_plane2cam)
+    point_targ_cam = bound_points(point_targ_cam)
     np.save(f'{clutter_scene_path}/target_pointcloud_cam.npy', point_targ_cam)
     
 
