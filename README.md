@@ -32,13 +32,16 @@ conda activate qt_env
 python 2_2_plane_cam.py
 ```
 
-## 3. Occlusion Calculation
+## 3. Arrange Scenes
 
 ```py
 conda activate qt_env
 ## crop the long-tail noise if possible
 ## the first click is the target object
 python 3_inference_pipeline.py
+# after pick_motion is done:
+python 3_1_arrange_single.py
+python 3_2_arrange_clutter.py
 ```
 
 ## 4. Sim2Real data convertion
@@ -51,6 +54,7 @@ python 4_sim2real_pointcloud.py
 
 ```py
 cd /home/hyperpanda/GraspInClutter/realworld
+conda activate gic
 ## if GIGA
 python giga_model_prediction.py 
 ## if ours

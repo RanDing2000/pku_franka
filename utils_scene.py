@@ -5,13 +5,11 @@ import time
 
 import cv2
 import numpy as np
-import sys
+
 import random
 import string
 
 import pyrealsense2 as rs
-
-
 
 import sys
 sys.path.append("/home/hyperpanda/segment-anything")
@@ -233,7 +231,7 @@ def process_one_round(save_dir, sam):
     o3d.visualization.draw_geometries([whole_label_pcd])
     o3d.io.write_point_cloud(os.path.join(save_dir,"whole_label.ply"),whole_label_pcd,write_ascii=True)
     for i, pcd in enumerate(object_pcds):
-        o3d.visualization.draw_geometries([pcd])
+        # o3d.visualization.draw_geometries([pcd])
         o3d.io.write_point_cloud(os.path.join(save_dir,f"object_{i}.ply"),pcd,write_ascii=True)
         ## change to numpy array
         ## save as npy
