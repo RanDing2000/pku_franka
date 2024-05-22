@@ -117,7 +117,11 @@ if __name__ == "__main__":
         [0, 0, 0.05],  # Origin
         [0.307, 0, 0.05],  # X-axis direction
         [0, 0.307, 0.05],  # Y-axis direction
-        [0.307, 0.307, 0.05]  # XY plane
+        [0.307, 0.307, 0.05],  # XY plane
+        [0.1, 0.1, 0.05],
+        [0.1, 0.2, 0.05],
+        [0.2, 0.1, 0.05],
+        [0.2, 0.2, 0.05]
     ])
 
     # Compute centroids of both sets
