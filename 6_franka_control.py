@@ -97,11 +97,11 @@ if __name__=="__main__":
     # world_point = T_cam_base @ T_plane_cam @ grasp_translation_homo_plane
 
     tcp_point_cam = T_plane_cam @ grasp_translation_homo_plane
-    targt_point_cam = np.load(f'{clutter_scene_path}/target_pointcloud_cam.npy')
+    targt_pc_cam = np.load(f'{clutter_scene_path}/target_pointcloud_cam.npy')
 
 
 
-    contact_point_cam = find_closest_point(tcp_point_cam[:3], targt_point_cam)
+    contact_point_cam = find_closest_point(tcp_point_cam[:3], targt_pc_cam)
 
     # depth_img_cam = np.load(f'{save_dir}/clutter_scene/cam2plane_transformation.npy') 
 

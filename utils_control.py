@@ -196,7 +196,30 @@ def rotate_motion(target_quat,world_point):
     T_ee_world.translation += [0, 0, -0.03]
     fa.goto_pose(T_ee_world)
     exit()
-  
+
+
+def pick_motion2(target_quat, world_point):
+    '''
+    pick along the z axis
+    '''
+
+    # go to the up direction of contact point
+    fa.open_gripper()
+    T_ee_world = fa.get_pose()
+    gripper_axis = check_axis(
+        quaternion_to_rotation_matrix(T_ee_world.quaternion))
+    print('gripper_axis:', gripper_axis)
+    if gripper_axis == 2:  # negative z-axis: downward
+        random_position = RigidTransform(rotation=target_quat, translation=np.array(world_point[:3]),
+                                         from_frame='franka_tool', to_frame='world')
+
+        fa.goto_pose(random_position)
+        T_ee_world = fa.get_pose()
+        print('Translation: {} | Rotation: {}'.format(
+            T_ee_world.translation, T_ee_world.quaternion))
+        fa.close_gripper()
+
+
 def pick_motion(target_quat,world_point):
   '''
   pick along the z axis

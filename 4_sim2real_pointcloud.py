@@ -115,10 +115,9 @@ if __name__=="__main__":
 
     point_targ_cam = np.load(f'{save_dir}/clutter_scene/object_0.npy') 
 
-    # np.save(f'{clutter_scene_path}/target_pointcloud_cam.npy', point_targ_cam)
-
     point_scene_plane = transform_point_cloud(point_scene_cam, T_cam2plane)
     point_targ_plane = transform_point_cloud(point_targ_cam, T_cam2plane)
+    save_pointcloud_to_ply(point_targ_plane, f'{clutter_scene_path}/target_pointcloud_before_crop.ply')
 
     point_scene_plane = bound_points(point_scene_plane)
     point_targ_plane = bound_points(point_targ_plane)
@@ -162,10 +161,10 @@ if __name__=="__main__":
     save_depth_image(depth_image, f'{clutter_scene_path}/clutter_scene_depth_image.png')
 
     tsdfvolume = o3d.pipelines.integration.ScalableTSDFVolume(
-    voxel_length=0.3 / 40,  # 体素的物理大小，由体积长度除以分辨率得到
-    sdf_trunc=1.2 / 40,  # 截断距离，与之前相同
-    color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,  # 指定不使用颜色信息
-)
+        voxel_length=0.3 / 40,  # 体素的物理大小，由体积长度除以分辨率得到
+        sdf_trunc=1.2 / 40,  # 截断距离，与之前相同
+        color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,  # 指定不使用颜色信息
+    )
 
     # # tsdf
     rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(
@@ -201,10 +200,10 @@ if __name__=="__main__":
     save_depth_image(depth_image, f'{clutter_scene_path}/single_scene_depth_image.png')
 
     tsdfvolume = o3d.pipelines.integration.ScalableTSDFVolume(
-    voxel_length=0.3 / 40,  # 体素的物理大小，由体积长度除以分辨率得到
-    sdf_trunc=1.2 / 40,  # 截断距离，与之前相同
-    color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,  # 指定不使用颜色信息
-)
+        voxel_length=0.3 / 40,  # 体素的物理大小，由体积长度除以分辨率得到
+        sdf_trunc=1.2 / 40,  # 截断距离，与之前相同
+        color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,  # 指定不使用颜色信息
+    )
 
     # # tsdf
     rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(

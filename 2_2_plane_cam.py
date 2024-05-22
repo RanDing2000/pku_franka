@@ -114,10 +114,10 @@ if __name__ == "__main__":
     # We create a local coordinate system for the whiteboard assuming the first corner as the origin (0, 0, 0)
     # The x-axis is defined towards the second point, and the y-axis towards the fourth, with appropriate scaling
     whiteboard_points_3d = np.array([
-        [0, 0, 0.02],  # Origin
-        [0.307, 0, 0.02],  # X-axis direction
-        [0, 0.307, 0.02],  # Y-axis direction
-        [0.307, 0.307, 0.02]  # XY plane
+        [0, 0, 0.05],  # Origin
+        [0.307, 0, 0.05],  # X-axis direction
+        [0, 0.307, 0.05],  # Y-axis direction
+        [0.307, 0.307, 0.05]  # XY plane
     ])
 
     # Compute centroids of both sets
