@@ -119,5 +119,5 @@ if __name__=="__main__":
     # result = 'The contact point at (540, 325), the gripper up 3D direction is [49, -1, -1] the gripper left 3D direction is [-1, 49, -1]'
 
 
-    pick_motion(target_quat,contact_point_base[:3])
+    pick_motion2(target_quat,contact_point_base[:3])
  
