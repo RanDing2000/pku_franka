@@ -33,7 +33,7 @@ def display_image_for_selection(image):
 
     return coords
 
-def refine_corners(image, coords, radius=5):
+def refine_corners(image, coords, radius=11):
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     gray = np.float32(gray)
     dst = cv2.cornerHarris(gray, 2, 3, 0.04)
@@ -88,7 +88,7 @@ def project_to_image(points_3d, focal_length, principal_point):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate and save a transformation matrix between plane coordinates and camera coordinates.')
-    parser.add_argument("--save_dir_root",type=str,default="/home/hyperpanda/Haoran")
+    parser.add_argument("--save_dir_root",type=str,default="/Users/ziyuan/Desktop/Github/pku")
     args = parser.parse_args()
     with open(os.path.join(args.save_dir_root, "config.json"), "r") as config_file:
         config = json.load(config_file)
