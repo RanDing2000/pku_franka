@@ -155,13 +155,13 @@ if __name__ == "__main__":
     ret, rvec, t, image = marker_estimatePose(
         color_image, intrinsics, dist_coeffs, marker_length)
     t = t.reshape(3, 1)
-    t = t - np.array([0.05, 0.05, 0]).reshape(3, 1)
+    t = t
     
-    # if ret:
-    #     cv2.drawFrameAxes(image, intrinsics, dist_coeffs, rvec, t, 0.05)
-    #     cv2.imshow("Image with Pose", color_image)
-    #     cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    if ret:
+        cv2.drawFrameAxes(image, intrinsics, dist_coeffs, rvec, t, 0.05)
+        cv2.imshow("Image with Pose", color_image)
+        cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
     # Convert rotation vector to rotation matrix
