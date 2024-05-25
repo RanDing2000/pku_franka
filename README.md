@@ -29,7 +29,7 @@ conda activate qt_env
 python 2_1_get_board.py
 # change `raw_npz_path` in plane_cam.py according to the get_board.py output
 conda activate qt_env
-python 2_2_plane_cam.py
+python 2_2_plane_cam_pnp.py
 ```
 
 ## 3. Arrange Scenes
