@@ -70,12 +70,14 @@ if __name__=="__main__":
     # rotation_ quaternion_to_rotation_matrix(rotation_quat)
     # fa = FrankaArm()
     # TODO: read from giga output instead
-    grasp_rotation_plane = np.array([[ 0.30966205, -0.94766735, -0.07769179],
- [-0.83709507, -0.31045842,  0.45043026],
- [-0.45097812, -0.07444574, -0.88942485]])
-    grasp_translation_plane = np.array([0.1575 ,0.0975, 0.27749999])
+    grasp_rotation_plane = np.array(
+[[ 0.31437481, -0.94314296, -0.1079344 ],
+ [-0.85662919, -0.33084358,  0.39589009],
+ [-0.40909035, -0.03199811, -0.91193267],]
+)
+    grasp_translation_plane = np.array([0.165, 0.0675, 0.2625])
     
-#     rotation:  [[ 0.30966205 -0.94766735 -0.07769179]
+#     rotation:  [[ 0.30966205 -0.94766735 -0.07769179] 
 #  [-0.83709507 -0.31045842  0.45043026]
 #  [-0.45097812 -0.07444574 -0.88942485]]
 # translation:  [0.1575     0.0975     0.27749999]
