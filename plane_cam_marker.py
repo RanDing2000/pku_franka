@@ -4,6 +4,8 @@ import cv2
 import os
 import argparse
 import json
+from utils_scene import inverse_extrinsics
+
 
 def load_data(path):
     data = np.load(path)
@@ -110,7 +112,7 @@ if __name__ == "__main__":
     # Path to your .npz file
     raw_npz_path = os.path.join(save_dir, 'raw.npz')
     # color_image, depth_image = load_data(raw_npz_path)
-    color_image = cv2.imread("/Users/ziyuan/Desktop/Github/0.jpg")
+    color_image = load_data(raw_npz_path)[0]
     # envpath = "/home/hyperpanda/anaconda3/lib/python3.11/site-packages/cv2/qt/plugins/platforms"
     # os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = envpath
     # refined_corners = np.asarray(calc_corners(color_image), dtype=np.float32)
@@ -139,10 +141,6 @@ if __name__ == "__main__":
         [0.307, 0, 0.05],  # X-axis direction
         [0, 0.307, 0.05],  # Y-axis direction
         [0.307, 0.307, 0.05],  # XY plane
-        # [0.1, 0.1, 0.05],
-        # [0.1, 0.2, 0.05],
-        # [0.2, 0.1, 0.05],
-        # [0.2, 0.2, 0.05]
     ], dtype=np.float32)
     
     # Assume no lens distortion
@@ -159,11 +157,11 @@ if __name__ == "__main__":
     t = t.reshape(3, 1)
     t = t - np.array([0.05, 0.05, 0]).reshape(3, 1)
     
-    if ret:
-        cv2.drawFrameAxes(image, intrinsics, dist_coeffs, rvec, t, 0.05)
-        cv2.imshow("Image with Pose", color_image)
-        cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # if ret:
+    #     cv2.drawFrameAxes(image, intrinsics, dist_coeffs, rvec, t, 0.05)
+    #     cv2.imshow("Image with Pose", color_image)
+    #     cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
 
     # Convert rotation vector to rotation matrix
@@ -189,8 +187,17 @@ if __name__ == "__main__":
     # Construct the inverse transformation matrix
     T_inv = np.eye(4)  # Initialize a 4x4 identity matrix
     T_inv[:3, :3] = R_inv  # Upper left 3x3 submatrix is the inverse rotation
-    T_inv[:3, 3] = t_inv.flatten()  # Last column is the inverse translation
-
+    T_inv[:3, 3] = t_inv.flatten() - np.array([0.25, 0.25, 0]).reshape(3, 1)  # Last column is the inverse translation
+    
+    T = inverse_extrinsics(T_inv)
+    R = T[:3, :3]
+    t = T[:3, 3]
+    rvec, _ = cv2.Rodrigues(R)
+    cv2.drawFrameAxes(color_image, intrinsics, dist_coeffs, rvec, t, 0.05)
+    cv2.imshow("Image with Pose", color_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
     # Define the whiteboard's points in its coordinate system
     # Assuming these points correspond to the corners in the whiteboard's local coordinate system
     whiteboard_points_homogeneous = np.hstack((whiteboard_points_3d, np.ones((whiteboard_points_3d.shape[0], 1))))
@@ -217,6 +224,6 @@ if __name__ == "__main__":
 
     # Save transformation matrix to .npy file with scene_id in the filename
     filename = os.path.join(save_dir, 'cam2plane_transformation.npy')
-    np.save(filename, T_inv)  # Assuming T is your transformation matrix
+    np.save(filename, T)  # Assuming T is your transformation matrix
 
     print(f"Transformation matrix saved as '{filename}'")
