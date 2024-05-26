@@ -187,7 +187,7 @@ if __name__ == "__main__":
     # Construct the inverse transformation matrix
     T_inv = np.eye(4)  # Initialize a 4x4 identity matrix
     T_inv[:3, :3] = R_inv  # Upper left 3x3 submatrix is the inverse rotation
-    T_inv[:3, 3] = t_inv.flatten() - np.array([0.25, 0.25, 0]).reshape(3, 1)  # Last column is the inverse translation
+    T_inv[:3, 3] = t_inv.flatten() + np.array([0.025, 0.025, 0]).reshape(3,)  # Last column is the inverse translation
     
     T = inverse_extrinsics(T_inv)
     R = T[:3, :3]

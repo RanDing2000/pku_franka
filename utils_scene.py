@@ -276,8 +276,6 @@ def pointcloud_to_depthmap(point_cloud, intrinsic_matrix, image_size):
 
     # Project each point to the image plane
     for point in point_cloud:
-        # projected_point = np.dot(intrinsic_matrix, point)
-        # Convert homogeneous coordinates to 2D
         x, y, z = point.flatten()
         if z > 0:
             x1 = u + a_u * x / z
@@ -286,7 +284,7 @@ def pointcloud_to_depthmap(point_cloud, intrinsic_matrix, image_size):
             y1 = int(round(y1))
 
             if 0 <= x1 < image_size[0] and 0 <= y1 < image_size[1]:
-                    depth_map[y1, x1] = z
+                depth_map[y1, x1] = z
                 
     return depth_map
 
