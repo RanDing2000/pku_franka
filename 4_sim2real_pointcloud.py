@@ -91,16 +91,16 @@ if __name__=="__main__":
     
     pc_targ_cam = np.load(f'{save_dir}/clutter_scene/object_0.npy')
     pc_targ_plane = transform_point_cloud(pc_targ_cam, T_cam2plane)
+    save_pointcloud_to_ply(pc_targ_plane, f'{clutter_scene_path}/pc_targ_plane_before_crop.ply')
     pc_targ_plane = bound_points(pc_targ_plane)
+    save_pointcloud_to_ply(pc_targ_plane, f'{clutter_scene_path}/pc_targ_plane.ply')
     
     if len(no_targ_arrays) > 0:
         pc_scene_no_targ_cam = np.concatenate(no_targ_arrays, axis=0)
         pc_scene_no_targ_plane = transform_point_cloud(pc_scene_no_targ_cam, T_cam2plane)
         save_pointcloud_to_ply(pc_scene_no_targ_plane, f'{clutter_scene_path}/pc_scene_no_targ_plane_before_crop.ply')
-        save_pointcloud_to_ply(pc_targ_plane, f'{clutter_scene_path}/pc_targ_plane_before_crop.ply')
         pc_scene_no_targ_plane = bound_points(pc_scene_no_targ_plane)
         save_pointcloud_to_ply(pc_scene_no_targ_plane, f'{clutter_scene_path}/pc_scene_no_targ_plane.ply')
-        save_pointcloud_to_ply(pc_targ_plane, f'{clutter_scene_path}/pc_targ_plane.ply')
     else:
         pc_scene_no_targ_plane = np.array([])
         pc_scene_no_targ_cam = np.array([])
