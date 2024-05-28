@@ -66,7 +66,7 @@ if __name__=="__main__":
     clutter_scene_path  = os.path.join(save_dir, 'clutter_scene')
     single_scene_path = os.path.join(save_dir, 'single_scene')
 
-    T_cam2plane = np.load(f'{save_dir}/cam2plane_transformation.npy') # /Users/ziyuan/Desktop/Github/pku/scenes/2024-04-08-23-35-rbmwtgignfhapyfm/cam2plane_transformation.npy
+    T_cam2plane = np.load(f'{save_dir}/cam2plane_transformation.npy')
 
     # extrinsic_inv = np.linalg.inv(extrinsic)
     T_plane2cam = inverse_extrinsics(T_cam2plane)
@@ -81,7 +81,7 @@ if __name__=="__main__":
     no_targ_arrays = []
     all_obj_arrays = []
     for file in sorted_files:
-        if (file != 'object_0.npy') and (file != 'object_1.npy'): # (file != sorted_files[-1]):
+        if (file != 'object_0.npy') and (file != sorted_files[-1]):
             no_targ_arrays.append(np.load(os.path.join(clutter_scene_path, file)))
         all_obj_arrays.append(np.load(os.path.join(clutter_scene_path, file)))
     
@@ -152,7 +152,6 @@ if __name__=="__main__":
     save_depth_image(depth, f'{clutter_scene_path}/clutter_scene_depth_image_rgbd.png')
 
     tsdfvolume.integrate(rgbd, intrinsics_o3d, T_plane2cam)
-    # tsdfvolume.integrate(rgbd, intrinsics_o3d, T_cam2plane)
 
     save_pointcloud_to_ply(np.asarray(tsdfvolume.extract_point_cloud().points), f'{clutter_scene_path}/clutter_scene_tsdf_points.ply')
 
