@@ -113,8 +113,8 @@ if __name__ == "__main__":
     raw_npz_path = os.path.join(save_dir, 'raw.npz')
     # color_image, depth_image = load_data(raw_npz_path)
     color_image = load_data(raw_npz_path)[0]
-    # envpath = "/home/hyperpanda/anaconda3/lib/python3.11/site-packages/cv2/qt/plugins/platforms"
-    # os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = envpath
+    envpath = "/home/hyperpanda/anaconda3/lib/python3.11/site-packages/cv2/qt/plugins/platforms"
+    os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = envpath
     # refined_corners = np.asarray(calc_corners(color_image), dtype=np.float32)
     # print("Refined coordinates:", refined_corners)
     # # save the color image with the refined coordinates marked
@@ -157,11 +157,11 @@ if __name__ == "__main__":
     t = t.reshape(3, 1)
     t = t
     
-    if ret:
-        cv2.drawFrameAxes(image, intrinsics, dist_coeffs, rvec, t, 0.05)
-        cv2.imshow("Image with Pose", color_image)
-        cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # if ret:
+    #     cv2.drawFrameAxes(image, intrinsics, dist_coeffs, rvec, t, 0.05)
+    #     cv2.imshow("Image with Pose", color_image)
+    #     cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
 
     # Convert rotation vector to rotation matrix
@@ -187,16 +187,16 @@ if __name__ == "__main__":
     # Construct the inverse transformation matrix
     T_inv = np.eye(4)  # Initialize a 4x4 identity matrix
     T_inv[:3, :3] = R_inv  # Upper left 3x3 submatrix is the inverse rotation
-    T_inv[:3, 3] = t_inv.flatten() + np.array([0.025, 0.025, 0]).reshape(3,)  # Last column is the inverse translation
+    T_inv[:3, 3] = t_inv.flatten() + np.array([0.025, 0.025, 0.05]).reshape(3,)  # Last column is the inverse translation
     
     T = inverse_extrinsics(T_inv)
     R = T[:3, :3]
     t = T[:3, 3]
     rvec, _ = cv2.Rodrigues(R)
-    cv2.drawFrameAxes(color_image, intrinsics, dist_coeffs, rvec, t, 0.05)
-    cv2.imshow("Image with Pose", color_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.drawFrameAxes(color_image, intrinsics, dist_coeffs, rvec, t, 0.05)
+    # cv2.imshow("Image with Pose", color_image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     
     # Define the whiteboard's points in its coordinate system
     # Assuming these points correspond to the corners in the whiteboard's local coordinate system

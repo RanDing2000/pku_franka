@@ -52,7 +52,7 @@ if __name__=="__main__":
     os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = envpath
     
     parser=argparse.ArgumentParser()
-    parser.add_argument("--save_dir_root", type=str, default="/Users/ziyuan/Desktop/Github/pku")  # "/home/hyperpanda/Haoran")
+    parser.add_argument("--save_dir_root", type=str, default="/home/hyperpanda/Haoran")  # "/home/hyperpanda/Haoran")
 
     # parser.add_argument("--id",type=int,default=1)
     args=parser.parse_args()

@@ -12,14 +12,14 @@ args = parser.parse_args()
 # Assume input_string is provided in the script or loaded from a file
 input_string = """
 translation: 
-  x: 1.0800069701248212
-  y: -0.5061842538039398
-  z: 0.617478823738227
+  x: 0.7658907891290002
+  y: -0.4439059168195261
+  z: 0.5964559379024932
 rotation: 
-  x: -0.6226072096632805
-  y: -0.42311531772752997
-  z: 0.42509711618120727
-  w: 0.5026192716102875
+  x: -0.7392887617408799
+  y: -0.3063422001210848
+  z: 0.2110207564508383
+  w: 0.5613170436887925
 """
 
 # Function to parse the provided input string
