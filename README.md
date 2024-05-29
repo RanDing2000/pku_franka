@@ -1,6 +1,6 @@
+# PKU Franka
 
 ## 1. Hand-eye Camera Calibration
-[] save the hand-eye transformation 
 
 ```py
 # 1.1 create scene_id and save to config.json
@@ -21,7 +21,6 @@ rqt
 python '/home/hyperpanda/Haoran/1_3_save_handeye_transformation.py'
 ```
 
-
 ## 2. Transformation between camera and board
 
 ```py
@@ -29,7 +28,7 @@ conda activate qt_env
 python 2_1_get_board.py
 # change `raw_npz_path` in plane_cam.py according to the get_board.py output
 conda activate qt_env
-python 2_2_plane_cam_marker.py
+# python 2_2_plane_cam_marker.py
 python 2_2_plane_cam_pnp.py
 ```
 
@@ -58,8 +57,10 @@ cd /home/hyperpanda/GraspInClutter/realworld
 conda activate gic
 ## if GIGA
 python giga_model_prediction.py 
-## if ours
+## if ours w/ sc
 python ours_model_prediction.py
+## if ours w/o sc
+python ours_model_no_sc.py
 ```
 
 ## 6. Franka Control
@@ -68,7 +69,7 @@ python ours_model_prediction.py
 cd ~/frankapy
 conda deactivate
 bash ./bash_scripts/start_control_pc.sh -i localhost
-# /bin/python3 examples/move_robot.py
+
 cd ~/frankapy
 conda deactivate
 cd ../Haoran
