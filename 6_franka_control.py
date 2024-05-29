@@ -1,7 +1,5 @@
 import numpy as np
 import sys
-sys.path.append('/home/hyperpanda/frankapy/')
-from frankapy import FrankaArm
 import os
 import json
 import argparse
@@ -17,28 +15,46 @@ def find_closest_point(A, B):
     # Return the closest point
     return B[min_index]
 
-'''
-translation: 
-  x: -0.12261548208584613
-  y: -0.4562687157930215
-  z: 0.6744739999523481
-rotation: 
-  x: -0.6157378065331557
-  y: 0.30202872525885305
-  z: -0.3509921573226749
-  w: 0.6375343976776667
-x-axis: forward
-y-axis: left
-z-axis: upward
-camera calibration offset around: [-0.11,-0.05,0.0]
-'''
 
-## [] TODO select grasp_plane
-## [] TODO T_cam_base
+def get_se3(input_string):
+    """
+    Input string should be four lines, where the first three lines are the rotation matrix
+    and the fourth line is the translation vector.
+    
+    E.g.
+    ```
+    rotation:  [[ 0.65947986 -0.69682496 -0.28199521]
+    [-0.66287058 -0.71598196  0.21902609]
+    [-0.35452633  0.04248303 -0.93408044]]
+    translation:  [0.195 0.105 0.145]
+    ```
+    
+    Note: indentation is not important, b/c heading and trailing spaces are removed.
+    """
+    lines = input_string.strip().split('\n')
 
-if __name__=="__main__":
-    parser=argparse.ArgumentParser()
+    # Extract and clean the rotation matrix
+    rotation_lines = lines[:3]
+    rotation_values = []
+    for line in rotation_lines:
+        cleaned_line = line.replace('rotation:', '').replace('[', '').replace(']', '').strip()
+        rotation_values.extend([float(num) for num in cleaned_line.split()])
+
+    # Extract and clean the translation vector
+    translation_line = lines[3].replace('translation:', '').strip()
+    translation_values = [float(num) for num in translation_line.replace('[', '').replace(']', '').split()]
+
+    # Convert to numpy arrays
+    grasp_rotation_plane = np.array(rotation_values).reshape(3, 3)
+    grasp_translation_plane = np.array(translation_values)
+
+    return grasp_rotation_plane, grasp_translation_plane
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Given grasp pose, grasp the target.')
     parser.add_argument("--save_dir_root",type=str,default="/home/hyperpanda/Haoran")
+    # parser.add_argument("--save_dir_root",type=str,default="/Users/ziyuan/Desktop/Github/pku")
 
     # parser.add_argument("--id",type=int,default=1)
     args=parser.parse_args()
@@ -51,33 +67,27 @@ if __name__=="__main__":
     clutter_scene_path  = os.path.join(save_dir, 'clutter_scene')
     
     intrinsics = np.load(os.path.join(save_dir, "intrinsics.npy"), allow_pickle=True)
-
-    # translation = np.array([-0.12261548208584613,-0.4562687157930215,0.6744739999523481])
-    # rotation_quat = np.array([0.6375343976776667,-0.6157378065331557,0.30202872525885305,-0.3509921573226749]) #wxyz
-
-    parser = argparse.ArgumentParser(description='Given grasp pose, grasp the target.')
-    parser.add_argument("--save_dir_root",type=str,default="/home/hyperpanda/Haoran")
-    args = parser.parse_args()
-    with open(os.path.join(args.save_dir_root, "config.json"), "r") as config_file:
-        config = json.load(config_file)
-    scene_id = config["scene_id"]
-    save_dir = os.path.join(args.save_dir_root, 'scenes', scene_id)
-
+    
     T_cam_base = np.load(os.path.join(save_dir, 'base2cam_transformation.npy')) ## eye = T (hand->eye) * hand 
-    T_base_cam = inverse_extrinsics(T_cam_base) ## hand = T (eye -> hand) * eye
-    
-    # T_hand_eye = np.load('/home/hyperpanda/Haoran/scenes/2024-04-08-01-50-fizgcljccxxuxjpf/hand2eye_transformation.npy')
-    # rotation_ quaternion_to_rotation_matrix(rotation_quat)
-    # fa = FrankaArm()
-    # TODO: read from giga output instead
-    grasp_rotation_plane = np.array(
-[[ 0.31437481, -0.94314296, -0.1079344 ],
- [-0.85662919, -0.33084358,  0.39589009],
- [-0.40909035, -0.03199811, -0.91193267],]
-)
-    grasp_translation_plane = np.array([0.165, 0.0675, 0.2625])
-    
+    # T_base_cam = inverse_extrinsics(T_cam_base) ## hand = T (eye -> hand) * eye
 
+    input_string = """
+    rotation:  [[-0.44512886  0.88985296  0.10011002]
+ [ 0.87192779  0.45617546 -0.17789288]
+ [-0.20396623  0.00810345 -0.97894439]]
+translation:  [0.18   0.1425 0.15  ]
+    """
+    
+    grasp_rotation_plane, grasp_translation_plane = get_se3(input_string)
+    
+    ### if `loading from input_string` fails, manually copy to the following and edit
+    #     grasp_rotation_plane = np.array(
+    # [[ 0.31437481, -0.94314296, -0.1079344 ],
+    #  [-0.85662919, -0.33084358,  0.39589009],
+    #  [-0.40909035, -0.03199811, -0.91193267],]
+    # )
+    #     grasp_translation_plane = np.array([0.165, 0.0675, 0.2625])
+    
     T_grasp_plane = np.eye(4)
     T_grasp_plane[:3, :3] = grasp_rotation_plane
     T_grasp_plane[:3, 3] = grasp_translation_plane
@@ -88,7 +98,7 @@ if __name__=="__main__":
     grasp_translation_homo_plane = np.append(grasp_translation_plane, 1)
 
     tcp_point_cam = T_plane_cam @ grasp_translation_homo_plane
-    targt_pc_cam = np.load(f'{clutter_scene_path}/target_pointcloud_cam.npy')
+    targt_pc_cam = np.load(f'{clutter_scene_path}/pc_targ_cam.npy')
 
 
 
@@ -98,4 +108,3 @@ if __name__=="__main__":
     contact_point_base = T_cam_base @ contact_point_cam_homo
 
     pick_motion2(target_quat,contact_point_base[:3])
- 

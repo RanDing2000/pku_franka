@@ -46,13 +46,14 @@ def get_grid(tsdf_volume,resolution=40):
 
 if __name__=="__main__":
     ## ---------------------------------------- ##
-    # firstly, do the single scene
+    # firstly, clutter scene
     ## ---------------------------------------- ##
     envpath = "/home/hyperpanda/anaconda3/lib/python3.11/site-packages/cv2/qt/plugins/platforms"
     os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = envpath
     
     parser=argparse.ArgumentParser()
-    parser.add_argument("--save_dir_root", type=str, default="/home/hyperpanda/Haoran")  # "/home/hyperpanda/Haoran")
+    parser.add_argument("--save_dir_root", type=str, default="/home/hyperpanda/Haoran")
+    # parser.add_argument("--save_dir_root", type=str, default="/Users/ziyuan/Desktop/Github/pku")
 
     # parser.add_argument("--id",type=int,default=1)
     args=parser.parse_args()
@@ -67,8 +68,6 @@ if __name__=="__main__":
     single_scene_path = os.path.join(save_dir, 'single_scene')
 
     T_cam2plane = np.load(f'{save_dir}/cam2plane_transformation.npy')
-
-    # extrinsic_inv = np.linalg.inv(extrinsic)
     T_plane2cam = inverse_extrinsics(T_cam2plane)
 
     # Regular expression pattern to match "object_<number>.npy"
@@ -94,6 +93,7 @@ if __name__=="__main__":
     save_pointcloud_to_ply(pc_targ_plane, f'{clutter_scene_path}/pc_targ_plane_before_crop.ply')
     pc_targ_plane = bound_points(pc_targ_plane)
     save_pointcloud_to_ply(pc_targ_plane, f'{clutter_scene_path}/pc_targ_plane.ply')
+    np.save(f'{clutter_scene_path}/pc_targ_plane.npy', pc_targ_plane)
     
     if len(no_targ_arrays) > 0:
         pc_scene_no_targ_cam = np.concatenate(no_targ_arrays, axis=0)
@@ -104,14 +104,13 @@ if __name__=="__main__":
     else:
         pc_scene_no_targ_plane = np.array([])
         pc_scene_no_targ_cam = np.array([])
-    
     np.save(f'{clutter_scene_path}/pc_scene_no_targ_cam.npy', pc_scene_no_targ_cam)
     
     pc_targ_cam = transform_point_cloud(pc_targ_plane, T_plane2cam)
     np.save(f'{clutter_scene_path}/pc_targ_cam.npy', pc_targ_cam)
     np.save(f'{clutter_scene_path}/pc_scene_no_targ_plane.npy', pc_scene_no_targ_plane)
-    np.save(f'{clutter_scene_path}/pc_targ_plane.npy', pc_targ_plane)
 
+    ## load intrinsics
     intrinsics = np.load(f"{save_dir}/intrinsics.npy", allow_pickle=True)
     
     focal_length = [intrinsics[0, 0], intrinsics[1, 1]]
@@ -126,18 +125,16 @@ if __name__=="__main__":
         cy=principal_point[1],
     )
 
-    ## remove nan values
+    ## scene
+    # remove nan values
     pc_scene_cam = pc_scene_cam[~np.isnan(pc_scene_cam).any(axis=1)]
     depth_image = pointcloud_to_depthmap(pc_scene_cam, intrinsics, (1280, 720))
     save_depth_image(depth_image, f'{clutter_scene_path}/clutter_scene_depth_image.png')
-
     tsdfvolume = o3d.pipelines.integration.ScalableTSDFVolume(
         voxel_length=0.3 / 40,  # 体素的物理大小，由体积长度除以分辨率得到
         sdf_trunc=1.2 / 40,  # 截断距离，与之前相同
         color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,  # 指定不使用颜色信息
     )
-
-    # # tsdf
     rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(
         o3d.geometry.Image(np.empty_like(depth_image).astype(np.uint16)),
         o3d.geometry.Image(depth_image.astype(np.float32)),
@@ -145,21 +142,54 @@ if __name__=="__main__":
         depth_trunc=2.0,
         convert_rgb_to_intensity=False,
     )
-
-    ## get depth from rgbd
-    depth = np.asarray(rgbd.depth)
-    # save_depth_image(depth, '/usr/stud/dira/GraspInClutter/grasping/depth_image_rgbd.png')
-    save_depth_image(depth, f'{clutter_scene_path}/clutter_scene_depth_image_rgbd.png')
-
     tsdfvolume.integrate(rgbd, intrinsics_o3d, T_plane2cam)
-
     save_pointcloud_to_ply(np.asarray(tsdfvolume.extract_point_cloud().points), f'{clutter_scene_path}/clutter_scene_tsdf_points.ply')
-
     tsdf_grid = get_grid(tsdfvolume)
     np.save(f'{clutter_scene_path}/clutter_scene_tsdf_grid.npy', tsdf_grid)
-
     tsdf_to_ply(tsdf_grid, f'{clutter_scene_path}/clutter_scene_tsdf.ply')
 
+    ## scene without targ
+    pc_scene_no_targ_cam = pc_scene_no_targ_cam[~np.isnan(pc_scene_no_targ_cam).any(axis=1)]
+    depth_image = pointcloud_to_depthmap(pc_scene_no_targ_cam, intrinsics, (1280, 720))
+    save_depth_image(depth_image, f'{clutter_scene_path}/scene_no_targ_depth_image.png')
+    tsdfvolume = o3d.pipelines.integration.ScalableTSDFVolume(
+        voxel_length=0.3 / 40,  # 体素的物理大小，由体积长度除以分辨率得到
+        sdf_trunc=1.2 / 40,  # 截断距离，与之前相同
+        color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,  # 指定不使用颜色信息
+    )
+    rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(
+        o3d.geometry.Image(np.empty_like(depth_image).astype(np.uint16)),
+        o3d.geometry.Image(depth_image.astype(np.float32)),
+        depth_scale=1.0,
+        depth_trunc=2.0,
+        convert_rgb_to_intensity=False,
+    )
+    tsdfvolume.integrate(rgbd, intrinsics_o3d, T_plane2cam)
+    save_pointcloud_to_ply(np.asarray(tsdfvolume.extract_point_cloud().points), f'{clutter_scene_path}/scene_no_targ_tsdf_points.ply')
+    tsdf_grid = get_grid(tsdfvolume)
+    np.save(f'{clutter_scene_path}/scene_no_targ_tsdf_grid.npy', tsdf_grid)
+    tsdf_to_ply(tsdf_grid, f'{clutter_scene_path}/scene_no_targ_tsdf.ply')
+    
+    ## target
+    depth_image = pointcloud_to_depthmap(pc_targ_cam, intrinsics, (1280, 720))
+    save_depth_image(depth_image, f'{clutter_scene_path}/targ_depth_image.png')
+    tsdfvolume = o3d.pipelines.integration.ScalableTSDFVolume(
+        voxel_length=0.3 / 40,  # 体素的物理大小，由体积长度除以分辨率得到
+        sdf_trunc=1.2 / 40,  # 截断距离，与之前相同
+        color_type=o3d.pipelines.integration.TSDFVolumeColorType.NoColor,  # 指定不使用颜色信息
+    )
+    rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(
+        o3d.geometry.Image(np.empty_like(depth_image).astype(np.uint16)),
+        o3d.geometry.Image(depth_image.astype(np.float32)),
+        depth_scale=1.0,
+        depth_trunc=2.0,
+        convert_rgb_to_intensity=False,
+    )
+    tsdfvolume.integrate(rgbd, intrinsics_o3d, T_plane2cam)
+    save_pointcloud_to_ply(np.asarray(tsdfvolume.extract_point_cloud().points), f'{clutter_scene_path}/clutter_targ_tsdf_points.ply')
+    tsdf_grid = get_grid(tsdfvolume)
+    np.save(f'{clutter_scene_path}/clutter_targ_tsdf_grid.npy', tsdf_grid)
+    tsdf_to_ply(tsdf_grid, f'{clutter_scene_path}/clutter_targ_tsdf.ply')
 
     # ------------------ single scene (unoccluded) ---------------------- #
     
@@ -183,13 +213,10 @@ if __name__=="__main__":
 
     ## get depth from rgbd
     depth = np.asarray(rgbd.depth)
-    # save_depth_image(depth, '/usr/stud/dira/GraspInClutter/grasping/depth_image_rgbd.png')
-    # save_depth_image(depth, f'{clutter_scene_path}/clutter_scene_depth_image_rgbd.png')
-
     tsdfvolume.integrate(rgbd, intrinsics_o3d, T_plane2cam)
+    save_pointcloud_to_ply(np.asarray(tsdfvolume.extract_point_cloud().points), f'{single_scene_path}/single_targ_tsdf_points.ply')
     tsdf_grid = get_grid(tsdfvolume)
-    np.save(f'{single_scene_path}/targ_tsdf_grid.npy', tsdf_grid)
-
-    tsdf_to_ply(tsdf_grid, f'{single_scene_path}/targ_tsdf.ply')
+    np.save(f'{single_scene_path}/single_targ_tsdf_grid.npy', tsdf_grid)
+    tsdf_to_ply(tsdf_grid, f'{single_scene_path}/single_targ_tsdf.ply')
     
     print("end")
