@@ -37,9 +37,7 @@ python 2_2_plane_cam_pnp.py
 ```py
 conda activate qt_env
 ## crop the long-tail noise if possible
-## the first click is the target object
-python 3_inference_pipeline.py
-# after pick_motion is done:
+## the first click is the target object, the last click is the board
 python 3_1_arrange_single.py
 python 3_2_arrange_clutter.py
 ```

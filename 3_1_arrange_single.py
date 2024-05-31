@@ -38,12 +38,13 @@ if __name__=="__main__":
     sam.to(device=device)
     
     print("-------------------arrange single scene -------------------")
-    input("After Finish, Press Enter to continue...")
+    input("First click target. Then click board. After Finish, Press Enter to continue...")
 
     ##---------------- firstly, do the single scene ----------------##
     single_scene_dir = os.path.join(save_dir, 'single_scene')
     if not os.path.exists(single_scene_dir):
         os.makedirs(single_scene_dir, exist_ok=True)
-    process_one_round(single_scene_dir, sam)
+    single_color_img = process_one_round(single_scene_dir, sam)
+    cv2.imwrite(os.path.join(single_scene_dir, "single_color.png"), single_color_img)
     
     print("Done!")

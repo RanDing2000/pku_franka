@@ -41,13 +41,14 @@ if __name__=="__main__":
     ## scene arrangement
     ## put enter and continue
     print("-------------------arrange clutter scene -------------------")
-    input("After Finish, Press Enter to continue...")
+    input("First click target. Then click other objects. Last click board. After Finish, Press Enter to continue...")
 
     ##---------------- then, do the clutter scene  ----------------##
     clutter_scene_dir = os.path.join(save_dir, 'clutter_scene')
     if not os.path.exists(clutter_scene_dir):
         os.makedirs(clutter_scene_dir, exist_ok=True)
-    process_one_round(clutter_scene_dir, sam)
+    clutter_color_img = process_one_round(clutter_scene_dir, sam)
+    cv2.imwrite(os.path.join(clutter_scene_dir, "clutter_color.png"), clutter_color_img)
 
     single_seg_map = np.load(os.path.join(single_scene_dir, 'segmentation_map.npy'))
     clutter_seg_map = np.load(os.path.join(clutter_scene_dir, 'segmentation_map.npy'))
