@@ -236,6 +236,8 @@ def process_one_round(save_dir, sam):
         ## change to numpy array
         ## save as npy
         np.save(os.path.join(save_dir,f"object_{i}.npy"),np.array(object_points[i]))
+    
+    return color_image_show
 
 def save_pointcloud_to_ply(point_cloud, filename):
     """

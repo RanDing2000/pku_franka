@@ -44,7 +44,8 @@ if __name__=="__main__":
     single_scene_dir = os.path.join(save_dir, 'single_scene')
     if not os.path.exists(single_scene_dir):
         os.makedirs(single_scene_dir, exist_ok=True)
-    process_one_round(single_scene_dir, sam)
+    single_color_img = process_one_round(single_scene_dir, sam)
+    cv2.imwrite(os.path.join(single_scene_dir, "single_color.png"), single_color_img)
     
     ## scene arrangement
     ## put enter and continue
@@ -55,7 +56,8 @@ if __name__=="__main__":
     clutter_scene_dir = os.path.join(save_dir, 'clutter_scene')
     if not os.path.exists(clutter_scene_dir):
         os.makedirs(clutter_scene_dir, exist_ok=True)
-    process_one_round(clutter_scene_dir, sam)
+    clutter_color_img = process_one_round(clutter_scene_dir, sam)
+    cv2.imwrite(os.path.join(clutter_scene_dir, "clutter_color.png"), clutter_color_img)
 
 
     ## calculate the occlusion level
