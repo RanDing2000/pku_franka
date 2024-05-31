@@ -76,6 +76,19 @@ cd ../Haoran
 /bin/python3 6_franka_control.py
 ```
 
+## 7. New Scene
+
+This considers using the same camera and board setup for the new scene.
+
+```py
+# run 1_1 again
+python /home/hyperpanda/Haoran/1_1_create_scene_name.py
+
+# manually copy intrinsics.npy, raw.npz, base2cam_transformation.npy, cam2plane_transformation.npy from old scene to new scene
+
+# then run steps 3 to 6 for the new scene
+```
+
 ## Camera View
 
 ```py
